@@ -32,7 +32,6 @@ The flow looks like this:
 - [install.sh](./install.sh) installs Mountpoint for Amazon S3 on Ubuntu, Debian, Amazon Linux, RHEL, and CentOS.
 - [mount.sh](./mount.sh) mounts the S3 bucket into `~/s3-mount`.
 - [test.sh](./test.sh) writes a sample file to verify the mount works.
-- [cleanup.sh](./cleanup.sh) unmounts the bucket, deletes the bucket contents, and removes the IAM resources created for the demo.
 
 ## Prerequisites
 
@@ -88,8 +87,8 @@ The generated IAM policy is scoped to one bucket:
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
-cd S3-EC-Mount
+git clone https://github.com/Jabu-Meki/s3-ec2-mountpoint.git
+cd s3-ec2-mountpoint
 chmod +x *.sh
 ```
 
@@ -259,24 +258,7 @@ Run from:
 
 - The EC2 instance
 
-### `cleanup.sh`
-
-Purpose:
-
-- Unmounts the mounted directory if it is mounted
-- Deletes all objects in the S3 bucket
-- Deletes the bucket itself
-- Removes the role from the instance profile
-- Deletes the instance profile, policy, and role
-
-Run from:
-
-- Usually your local machine after the demo is complete
-
-Notes:
-
-- If the mount is still active on the EC2 instance, the unmount step is only effective if you run it on that EC2 host.
-- The cleanup script requires `BUCKET_NAME` to still be exported.
+.
 
 ## Example End-to-End Session
 
@@ -302,10 +284,7 @@ aws s3 ls "s3://$BUCKET_NAME/"
 
 Cleanup:
 
-```bash
-export BUCKET_NAME=s3-mountpoint-007fd2e4
-bash cleanup.sh
-```
+
 
 ## Troubleshooting
 
@@ -368,26 +347,6 @@ ls -l ~/s3-mount
 aws s3 ls "s3://$BUCKET_NAME/"
 ```
 
-### Cleanup does not remove the mount
-
-Cause:
-
-- `cleanup.sh` is being run on a different machine from the one where the mount exists.
-
-Fix:
-
-- Run the unmount step directly on the EC2 instance:
-
-```bash
-fusermount -u ~/s3-mount
-```
-
-If needed:
-
-```bash
-sudo umount ~/s3-mount
-```
-
 ## Security Notes
 
 - The bucket has public access blocked by default.
@@ -403,7 +362,6 @@ sudo umount ~/s3-mount
 
 - The region is hardcoded to `af-south-1` in `setup.sh`.
 - `test.sh` currently performs a simple write check only.
-- `cleanup.sh` assumes the demo resource names created by `setup.sh`.
 - The scripts do not automatically launch or update the EC2 instance for you.
 
 ## Recommended Improvements
@@ -419,15 +377,8 @@ If you want to extend this project, good next steps would be:
 
 ## Cleanup
 
-When you are done, export the same bucket name and run:
-
-```bash
-export BUCKET_NAME=<your-bucket-name>
-bash cleanup.sh
-```
+When you are done, delete the bucket (empty it first)
 
 Also terminate the EC2 instance if it was created only for this demo.
 
-## License
 
-Add the license section that matches how you want to distribute this repository.
