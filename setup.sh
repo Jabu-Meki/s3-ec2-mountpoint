@@ -1,15 +1,12 @@
 #!/bin/bash
-# ============================================================
-# setup.sh - Creates the S3 bucket and IAM role for the demo
-# Run this from your LOCAL machine (not the EC2 instance)
-# ============================================================
 
 set -e
 
 export BUCKET_NAME="s3-mountpoint-$(openssl rand -hex 4)"
 export REGION="af-south-1"
 export ROLE_NAME="S3MountpointDemoRole"
-export INSTANCE_PROFILE_NAME="S3MountpointProfile"
+export INSTANCE_PROFILE_NAME="S3MountpointDemoProfile"
+export POLICY_NAME="S3MountpointDemoPolicy"
 
 
 # 1. Create S3 bucket
@@ -56,16 +53,19 @@ cat > /tmp/s3-policy.json <<EOF
     {
       "Effect": "Allow",
       "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:DeleteObject",
         "s3:ListBucket",
         "s3:HeadBucket"
       ],
-      "Resource": [
-        "arn:aws:s3:::$BUCKET_NAME",
-        "arn:aws:s3:::$BUCKET_NAME/*"
-      ]
+      "Resource": "arn:aws:s3:::$BUCKET_NAME"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::$BUCKET_NAME/*"
     }
   ]
 }
@@ -73,7 +73,7 @@ EOF
 
 aws iam put-role-policy \
   --role-name "$ROLE_NAME" \
-  --policy-name "S3MountpointPolicy" \
+  --policy-name "$POLICY_NAME" \
   --policy-document file:///tmp/s3-policy.json
 
 # 4. Create instance profile and attach role
@@ -92,6 +92,7 @@ echo " Setup complete!"
 echo " Bucket Name : $BUCKET_NAME"
 echo " IAM Role    : $ROLE_NAME"
 echo " Profile     : $INSTANCE_PROFILE_NAME"
+echo " Policy      : $POLICY_NAME"
 echo " Region      : $REGION"
 echo ""
 echo " NEXT STEPS:"
