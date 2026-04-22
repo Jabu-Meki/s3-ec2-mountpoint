@@ -265,8 +265,8 @@ Run from:
 Local machine:
 
 ```bash
-git clone <your-repo-url>
-cd S3-EC-Mount
+git clone ttps://github.com/Jabu-Meki/s3-ec2-mountpoint.git
+cd s3-ec2-mountpoint
 chmod +x *.sh
 bash setup.sh
 ```
